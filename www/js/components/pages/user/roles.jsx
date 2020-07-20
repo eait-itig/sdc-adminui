@@ -5,7 +5,8 @@
  */
 
 /*
- * Copyright (c) 2014, Joyent, Inc.
+ * Copyright 2020 Joyent, Inc.
+ * Copyright 2020 The University of Queensland
  */
 
 "use strict";
@@ -36,11 +37,21 @@ var RoleMemberInfo = React.createClass({
     },
     _fetchMember: function() {
         // policy-uuid=4de91c34-6784-45ac-aac7-9aa6c3d17013, uuid=930896af-bf8c-48d4-885c-6573a94b1853, ou=users, o=smartdc
-        var matches = this.props.dn.match(/uuid=([a-z0-9-]+), uuid=([a-z0-9-]+)/);
-        var user = matches[1];
-        var account = matches[2];
-        if (user && account) {
+        var subMatches = this.props.dn.match(/^uuid=([a-f0-9-]+), uuid=([a-f0-9-]+), ou=/);
+        var acctMatches = this.props.dn.match(/^uuid=([a-f0-9-]+), ou=/);
+        if (subMatches) {
+            var user = subMatches[1];
+            var account = subMatches[2];
             var url = _.str.sprintf('/api/users/%s/%s', account, user);
+            api.get(url).end(function(res) {
+                if (res.ok) {
+                    this.setState({member: res.body});
+                }
+                this.setState({loading: false});
+            }.bind(this));
+        } else if (acctMatches) {
+            var account = acctMatches[1];
+            var url = _.str.sprintf('/api/users/%s', account);
             api.get(url).end(function(res) {
                 if (res.ok) {
                     this.setState({member: res.body});

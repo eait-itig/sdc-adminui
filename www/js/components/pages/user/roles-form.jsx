@@ -5,7 +5,8 @@
  */
 
 /*
- * Copyright (c) 2014, Joyent, Inc.
+ * Copyright 2020 Joyent, Inc.
+ * Copyright 2020 The University of Queensland
  */
 
 "use strict";
@@ -67,7 +68,7 @@ var UserRolesForm = React.createClass({
             if (role.policies && _.isArray(role.policies)) {
                 console.log('role.policies', role.policies);
                 state.selectedPolicies = role.policies.map(function(p) {
-                    var matches = p.match(/policy-uuid=([a-z0-9-]+), uuid=([a-z0-9-]+)/);
+                    var matches = p.match(/^policy-uuid=([a-f0-9-]+), uuid=([a-f0-9-]+)/);
                     var policyUuid = matches[1];
                     var policy = _.findWhere(state.policies, {uuid: policyUuid});
                     return policy;
@@ -76,7 +77,7 @@ var UserRolesForm = React.createClass({
             if (role.members && _.isArray(role.members)) {
                 console.log('role.members', role.members);
                 state.selectedMembers = role.members.map(function(p) {
-                    var matches = p.match(/uuid=([a-z0-9-]+), uuid=([a-z0-9-]+)/);
+                    var matches = p.match(/^uuid=([a-f0-9-]+), /);
                     var userUuid = matches[1];
                     var user = _.findWhere(state.members, {uuid: userUuid});
                     return user;
@@ -127,6 +128,7 @@ var UserRolesForm = React.createClass({
             });
         });
     },
+
 
     _enterSelectPolicyMode: function() {
         this.setState({selectPolicy: true});
